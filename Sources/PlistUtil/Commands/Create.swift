@@ -20,11 +20,22 @@ import Foundation
 import ArgumentParser
 
 struct Create: PlistUtilSubcommandWithOutputFile {
+    static let configuration = CommandConfiguration(
+        abstract: "Create an empty plist file.",
+        usage: "create --format binary example.plist",
+        discussion: """
+            This command will create an empty list or dictionary at the specified file location.
+
+            Note that since this command cannot read certain formats, like swift dictionaries, some \
+            output formats may be more useful than others.
+            """
+    )
+
     @Option(name: .long, help: Format.usage)
     var format: Format?
 
     @Option(name: .long, help: "The type of the value to create.")
-    var type: DataType
+    var type: DataType = .dict
 
     @Argument(help: "The path where the file should be created.")
     var outputFile: String

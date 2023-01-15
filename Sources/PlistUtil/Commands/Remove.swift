@@ -20,6 +20,23 @@ import Foundation
 import ArgumentParser
 
 struct Remove: PlistUtilSubcommandWithInputAndOutputFile {
+    static let configuration = CommandConfiguration(
+        abstract: "Insert a value into the plist.",
+        usage: """
+            remove --key BoolKey example.plist
+            remove --key TopLevelKey --key LowerLevelKey example.plist
+            remove --key ArrayKey --key "$" example.plist
+            remove --key ArrayKey --key "^" example.plist
+            remove --key ArrayKey --key "0" example.plist
+            """,
+        discussion: """
+            For the ^ and $ key specifications respectively marking the beginning or end of \
+            a list, this subcommand will remove the item at the specified location.
+
+            Data types are also supported by entering the data in as a base64-encoded string.
+            """
+    )
+
     @Option(name: .long, help: Format.usage)
     var format: Format?
 

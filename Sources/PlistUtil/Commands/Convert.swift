@@ -20,13 +20,22 @@ import Foundation
 import ArgumentParser
 
 struct Convert: PlistUtilSubcommandWithInputAndOutputFile {
+    static let configuration = CommandConfiguration(
+        abstract: "Convert a plist to a different format.",
+        usage: "convert --format xml --in-file bin.plist xml.plist",
+        discussion: """
+            Certain formats, like the swift format, can be converted from plists, but not the other \
+            way around. If you should try to convert one of these files without specifying a separate \
+            output file, the command will fail to avoid data loss.
+            """
+    )
     @Option(name: .long, help: Format.usage)
     var format: Format?
 
-    @Option(name: .shortAndLong, help: "An optional file to use as output. Certain formats require this option to avoid data loss.")
+    @Option(name: .shortAndLong, help: "An optional file to use as output.")
     var outFile: String?
 
-    @Argument(help: "The plist file to use.")
+    @Argument(help: PlistUtil.filePathUsage)
     var file: String
 
     var inputFile: String { file }

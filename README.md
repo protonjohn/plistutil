@@ -13,6 +13,12 @@ All of the basic commands in plutil are supported - convert, create, insert, rem
 
 ## Examples
 
+Create an empty plist dictionary:
+
+```sh
+plistutil create --format binary file.plist
+```
+
 Convert a plist into a swift dictionary literal:
 
 ```sh

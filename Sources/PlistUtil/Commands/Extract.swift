@@ -20,6 +20,19 @@ import Foundation
 import ArgumentParser
 
 struct Extract: PlistUtilSubcommandWithInputAndOutputFile {
+    static let configuration = CommandConfiguration(
+        abstract: "Extract a nested value to another plist.",
+        usage: "extract --key NestedDict --format xml --out-file nested.plist example.plist",
+        discussion: """
+            For the ^ and $ key specifications respectively marking the beginning or end of \
+            a list, this subcommand will extract the item at the specified location.
+
+            Extraction of simpler types, like Ints and Strings, to stdout will be supported in a \
+            future release. For now, this only supports extracting nested data structures into \
+            separate files.
+            """
+    )
+
     @Option(name: .long, help: Format.usage)
     var format: Format?
 

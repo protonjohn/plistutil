@@ -20,6 +20,36 @@ import Foundation
 import ArgumentParser
 
 struct Insert: PlistUtilSubcommandWithInputAndOutputFile {
+    static let configuration = CommandConfiguration(
+        abstract: "Insert a value into the plist.",
+        usage: """
+            insert --key BoolKey --type bool --value true example.plist
+            insert --key TopLevelKey --key LowerLevelKey --type string --value "In a nested dictionary" example.plist
+            insert --key ArrayKey --key "$" --type string --value "Appended to an array" example.plist
+            insert --key ArrayKey --key "^" --type string --value "Prepended to an array" example.plist
+            insert --key ArrayKey --key "0" --type string --value "Set value at index 0" example.plist
+            """,
+        discussion: """
+            If a dictionary along a keypath is not encountered, an empty one will be created, and the \
+            value inserted. So, the command:
+
+            insert --key DictKey --key ExampleKey --type bool --value true example.plist
+
+            when run on an empty plist, would look something like:
+            
+            {
+              "DictKey" => {
+                "ExampleKey" => true
+              }
+            }
+
+            For the ^ and $ key specifications respectively marking the beginning or end of \
+            a list, this subcommand will prepend or append the specified value.
+
+            Data types are also supported by entering the data in as a base64-encoded string.
+            """
+    )
+
     @Option(name: .long, help: Format.usage)
     var format: Format?
 

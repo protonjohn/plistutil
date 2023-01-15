@@ -20,6 +20,16 @@ import Foundation
 import ArgumentParser
 
 struct Print: PlistUtilSubcommandWithInputFile {
+    static let configuration = CommandConfiguration(
+        abstract: "Print the contents of a plist.",
+        usage: """
+            print example.plist
+            """,
+        discussion: """
+            Keys are printed in alphabetical order.
+            """
+    )
+
     @Argument(help: PlistUtil.filePathUsage)
     var file: String
 

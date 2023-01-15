@@ -75,11 +75,29 @@ enum Format: String, ExpressibleByArgument, CaseIterable {
 public struct PlistUtil: ParsableCommand {
     public static let configuration = CommandConfiguration(
         commandName: "plistutil",
+        abstract: "A utility for modifying property list files.",
+        usage: """
+            plistutil create --format binary example.plist
+            plistutil insert --key Example --value Test --type string example.plist
+            plistutil print example.plist
+            plistutil convert --format xml --in-file example.plist xml.plist
+            plistutil remove --key Example example.plist
+            plistutil print example.plist
+            """,
+        discussion: """
+            See each subcommand's help message for more specific usage information.
+
+            For subcommands which take a keypath, the key is assumed to be a string, unless the value \
+            encountered along the keypath is a list. In that case, the key can be one of the following:
+            - An integer representing a zero-indexed reference to an existing element in the list
+            - A ^ or $ character, respectively representing the beginning or end of the list
+            """,
         subcommands: [
             Convert.self,
             Create.self,
             Extract.self,
             Insert.self,
+            Print.self,
             Remove.self,
         ]
     )
@@ -172,11 +190,6 @@ public struct PlistUtil: ParsableCommand {
     static let filePathUsage = ArgumentHelp(stringLiteral: "The plist file to use.")
     static let outputPathUsage = ArgumentHelp(stringLiteral:
         "An optional file to use as output. Certain formats require this option to avoid data loss."
-    )
-    static let keyTypeUsage = ArgumentHelp(stringLiteral: """
-        The types of each key. If specified, must be equal to the number of keys. By default, all keys are assumed to \
-        be strings.
-        """
     )
     static let keyPathUsage = ArgumentHelp(stringLiteral: """
         The key to index. If more than one is specified, each key will be treated as indexing into a dictionary \
