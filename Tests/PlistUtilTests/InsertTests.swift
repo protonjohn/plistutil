@@ -28,7 +28,7 @@ class InsertTests: PlistUtilTestCase {
         let stringData = string.data(using: .utf8)!
         let stringDataEncoded = stringData.base64EncodedString()
 
-        Create.main(["--format", "binary", "--type", "dict", "/dict.plist"])
+        Create.main(["--output-format", "binary", "--type", "dict", "/dict.plist"])
         func getPlist() -> [AnyHashable: Any]? {
             guard let contents = fs.contents(atPath: "/dict.plist") else {
                 XCTFail("Should have created contents at /dict.plist")

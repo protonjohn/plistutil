@@ -1,15 +1,6 @@
 # PlistUtil
 
-Were you, like me, trying to use `plutil` from a Swift package plugin, and realized you could if you were building the
-package from a scheme in Xcode, but not if you were running `swift build`?
-
-Yeah, probably not.
-
-In case you were though, this is a command-line utility that has parity with `plutil` on macOS, which is a tool for
-manipulating a common kind of data file called a property list. It has some extra features for traversing key paths and
-manipulating nested array and dictionary structures.
-
-All of the basic commands in plutil are supported - convert, create, insert, remove, extract, and print.
+Create and edit plists and other data formats on the command line through horrible abuse of the Swift Coding protocols.
 
 ## Examples
 

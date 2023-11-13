@@ -36,6 +36,14 @@ struct Extract: PlistUtilSubcommandWithInputAndOutputFile {
     @Option(name: .long, help: Format.usage)
     var format: Format?
 
+    var inputFormat: Format? {
+        format
+    }
+
+    var outputFormat: Format? {
+        format
+    }
+
     @Option(name: [.short, .customLong("out-file")], help: PlistUtil.outputPathUsage)
     var outputFile: String
 

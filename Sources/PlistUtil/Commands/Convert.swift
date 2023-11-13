@@ -22,7 +22,7 @@ import ArgumentParser
 struct Convert: PlistUtilSubcommandWithInputAndOutputFile {
     static let configuration = CommandConfiguration(
         abstract: "Convert a plist to a different format.",
-        usage: "convert --format xml --in-file bin.plist xml.plist",
+        usage: "convert --output-format xml --in-file bin.plist xml.plist",
         discussion: """
             Certain formats, like the swift format, can be converted from plists, but not the other \
             way around. If you should try to convert one of these files without specifying a separate \
@@ -30,7 +30,10 @@ struct Convert: PlistUtilSubcommandWithInputAndOutputFile {
             """
     )
     @Option(name: .long, help: Format.usage)
-    var format: Format?
+    var inputFormat: Format?
+
+    @Option(name: .long, help: Format.usage)
+    var outputFormat: Format?
 
     @Option(name: .shortAndLong, help: "An optional file to use as output.")
     var outFile: String?
@@ -42,11 +45,11 @@ struct Convert: PlistUtilSubcommandWithInputAndOutputFile {
     var outputFile: String { outFile ?? file }
 
     func validate() throws {
-        guard format != nil else {
-            throw FatalError.didNotSpecify(argument: "format")
+        guard outputFormat != nil else {
+            throw FatalError.didNotSpecify(argument: "output-format")
         }
 
-        guard !(format == .swift && outFile == nil) else {
+        guard !(outputFormat == .swift && outFile == nil) else {
             throw FatalError.wontConvertLossily(to: .swift)
         }
     }

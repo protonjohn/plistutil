@@ -34,7 +34,7 @@ class ConvertTests: PlistUtilTestCase {
             try convert.run()
             XCTFail("Command should not have succeeded")
         } catch let error as CommandError {
-            guard case .userValidationError(FatalError.didNotSpecify(argument: "format")) = error.parserError else {
+            guard case .userValidationError(FatalError.didNotSpecify(argument: "output-format")) = error.parserError else {
                 XCTFail("Expected user validation error but got \(String(describing: error))")
                 return
             }
@@ -47,7 +47,7 @@ class ConvertTests: PlistUtilTestCase {
         fs.createFile("/xml.plist", data, nil)
 
         do {
-            Convert.main(["--format", "binary", "--out-file", "/bin.plist", "/xml.plist"])
+            Convert.main(["--output-format", "binary", "--out-file", "/bin.plist", "/xml.plist"])
             let contents = fs.contents(atPath: "/bin.plist")
 
             guard let contents else {
@@ -64,7 +64,7 @@ class ConvertTests: PlistUtilTestCase {
 
         // now do it again, but editing in-place
         do {
-            Convert.main(["--format", "binary", "/xml.plist"])
+            Convert.main(["--output-format", "binary", "/xml.plist"])
             let contents = fs.contents(atPath: "/xml.plist")
 
             guard let contents else {

@@ -17,6 +17,8 @@
 //  along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
 
 import Foundation
+import Yams
+import CodingCollection
 import ArgumentParser
 
 internal typealias Option = ArgumentParser.Option
@@ -38,6 +40,8 @@ enum Format: String, ExpressibleByArgument, CaseIterable {
     case xml
     case binary
     case openStep
+    case json
+    case yaml
     case swift
 
     init(from format: PropertyListSerialization.PropertyListFormat) {
@@ -61,9 +65,13 @@ enum Format: String, ExpressibleByArgument, CaseIterable {
             return .binary
         case .xml:
             return .xml
-        case .swift:
+        case .yaml, .json, .swift:
             return nil
         }
+    }
+
+    var isPlistFormat: Bool {
+        plistFormat != nil
     }
 
     static let usage = ArgumentHelp(stringLiteral:
@@ -121,9 +129,9 @@ public struct PlistUtil: ParsableCommand {
         case .data where value != nil:
             result = Data(base64Encoded: value!, options: .ignoreUnknownCharacters)
         case .list:
-            result = []
+            result = [] as [Any]
         case .dict:
-            result = [:]
+            result = [:] as [String: Any]
         default:
             result = nil
         }
@@ -214,17 +222,18 @@ enum FileSystem {
 }
 
 protocol PlistUtilSubcommand: ParsableCommand {
-    mutating func contents() throws -> (Any, PropertyListSerialization.PropertyListFormat?)
+    mutating func contents() throws -> (Any, Format?)
     mutating func mutate(_ contents: Any) throws -> Any?
-    func write(_ plist: Any?, originalFormat: PropertyListSerialization.PropertyListFormat?) throws
+    func write(_ plist: Any?, originalFormat: Format?) throws
 }
 
 protocol PlistUtilSubcommandWithInputFile: PlistUtilSubcommand {
+    var inputFormat: Format? { get }
     var inputFile: String { get }
 }
 
 protocol PlistUtilSubcommandWithOutputFile: PlistUtilSubcommand {
-    var format: Format? { get set }
+    var outputFormat: Format? { get }
     var outputFile: String { get }
 }
 
@@ -238,30 +247,41 @@ protocol PlistUtilSubcommandWithInputAndOutputFile: PlistUtilSubcommandWithInput
 
 extension PlistUtilSubcommand {
     mutating func run() throws {
-        let (plist, plistFormat) = try contents()
-        try write(mutate(plist), originalFormat: plistFormat)
+        let (dict, format) = try contents()
+        try write(mutate(dict), originalFormat: format)
     }
 }
 
 extension PlistUtilSubcommandWithInputFile {
-    func contents() throws -> (Any, PropertyListSerialization.PropertyListFormat?) {
+    func contents() throws -> (Any, Format?) {
         guard let plistPath = URL(string: inputFile) else { throw FatalError.invalidPath(inputFile) }
-
         guard FileSystem.fileExists(inputFile) else { throw FatalError.noFileExists(at: plistPath) }
         guard let contents = FileSystem.contents(inputFile) else { throw FatalError.couldNotGetContents(of: plistPath) }
 
-        var plistFormat: PropertyListSerialization.PropertyListFormat = .xml
-        let result = try PropertyListSerialization.propertyList(from: contents, format: &plistFormat)
-        return (result, plistFormat)
+        switch inputFormat {
+        case .binary, .openStep, .xml, nil:
+            var plistFormat: PropertyListSerialization.PropertyListFormat = .xml
+            let result = try PropertyListSerialization.propertyList(from: contents, format: &plistFormat)
+            return (result, Format(from: plistFormat))
+        case .json:
+            return (try JSONDecoder().decode(CodingCollection.self, from: contents), .json)
+        case .yaml:
+            return (try YAMLDecoder().decode(CodingCollection.self, from: contents), .yaml)
+        case .swift:
+            throw FatalError.cantConvert(from: .swift)
+        }
     }
 }
 
 extension PlistUtilSubcommandWithOutputFile {
-    func write(_ plist: Any?, originalFormat: PropertyListSerialization.PropertyListFormat?) throws {
+    func write(_ plist: Any?, originalFormat: Format?) throws {
         let outputFile = URL(string: outputFile)! // for certain commands, if outputFile unspecified, inputFile is done in-place
 
+        let outputFormat = outputFormat ?? originalFormat
+
         let data: Data
-        if format == .swift {
+        switch outputFormat {
+        case .swift:
             let dictName = outputFile.deletingPathExtension().lastPathComponent.lowercasingFirstLetter
             let typeName = PlistUtil.swiftCollectionTypeName(plist!)
             let literal = try "let \(dictName): \(typeName) = \(PlistUtil.itemAsSwiftLiteral(plist!))\n"
@@ -269,9 +289,18 @@ extension PlistUtilSubcommandWithOutputFile {
                 throw FatalError.utf8EncodingError
             }
             data = literalData
-        } else {
-            let plistFormat = format?.plistFormat ?? originalFormat ?? .xml
-            data = try PropertyListSerialization.data(fromPropertyList: plist!, format: plistFormat, options: 0)
+        case .xml, .binary, .openStep, nil:
+            data = try PropertyListSerialization.data(fromPropertyList: plist!, format: outputFormat?.plistFormat ?? .xml, options: 0)
+        case .json:
+            let codingValue = CodingCollection(value: plist)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            data = try encoder.encode(codingValue)
+        case .yaml:
+            let codingValue = CodingCollection(value: plist)
+            let encoder = YAMLEncoder()
+            encoder.options = .init(sortKeys: true)
+            data = try encoder.encode(codingValue).data(using: .utf8) ?? Data()
         }
 
         try? FileSystem.removeItem(outputFile)

@@ -22,7 +22,7 @@ import ArgumentParser
 struct Create: PlistUtilSubcommandWithOutputFile {
     static let configuration = CommandConfiguration(
         abstract: "Create an empty plist file.",
-        usage: "create --format binary example.plist",
+        usage: "create --output-format binary example.plist",
         discussion: """
             This command will create an empty list or dictionary at the specified file location.
 
@@ -32,7 +32,7 @@ struct Create: PlistUtilSubcommandWithOutputFile {
     )
 
     @Option(name: .long, help: Format.usage)
-    var format: Format?
+    var outputFormat: Format?
 
     @Option(name: .long, help: "The type of the value to create.")
     var type: DataType = .dict
@@ -40,12 +40,12 @@ struct Create: PlistUtilSubcommandWithOutputFile {
     @Argument(help: "The path where the file should be created.")
     var outputFile: String
 
-    func contents() throws -> (Any, PropertyListSerialization.PropertyListFormat?) {
+    func contents() throws -> (Any, Format?) {
         switch type {
         case .list:
-            return ([], nil)
+            return ([] as [Any], nil)
         case .dict:
-            return ([:], nil)
+            return ([:] as [String: Any], nil)
         default:
             throw FatalError.cantExpressType(type.rawValue)
         }

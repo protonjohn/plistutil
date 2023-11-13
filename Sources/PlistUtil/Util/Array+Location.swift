@@ -46,3 +46,10 @@ enum ArrayLocation: CustomStringConvertible {
         }
     }
 }
+
+extension Array {
+    var second: Element? {
+        guard count > 1 else { return nil }
+        return self[1]
+    }
+}

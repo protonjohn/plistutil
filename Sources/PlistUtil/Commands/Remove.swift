@@ -38,7 +38,10 @@ struct Remove: PlistUtilSubcommandWithInputAndOutputFile {
     )
 
     @Option(name: .long, help: Format.usage)
-    var format: Format?
+    var inputFormat: Format?
+
+    @Option(name: .long, help: Format.usage)
+    var outputFormat: Format?
 
     @Option(name: .shortAndLong, help: PlistUtil.outputPathUsage)
     var outFile: String?

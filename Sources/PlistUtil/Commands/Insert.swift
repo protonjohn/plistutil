@@ -20,7 +20,7 @@ import Foundation
 import ArgumentParser
 
 struct Insert: PlistUtilSubcommandWithInputAndOutputFile {
-    static let configuration = CommandConfiguration(
+  static let configuration = CommandConfiguration(
         abstract: "Insert a value into the plist.",
         usage: """
             insert --key BoolKey --type bool --value true example.plist
@@ -36,7 +36,7 @@ struct Insert: PlistUtilSubcommandWithInputAndOutputFile {
             insert --key DictKey --key ExampleKey --type bool --value true example.plist
 
             when run on an empty plist, would look something like:
-            
+
             {
               "DictKey" => {
                 "ExampleKey" => true
@@ -52,6 +52,14 @@ struct Insert: PlistUtilSubcommandWithInputAndOutputFile {
 
     @Option(name: .long, help: Format.usage)
     var format: Format?
+
+    var inputFormat: Format? {
+        format
+    }
+
+    var outputFormat: Format? {
+        format
+    }
 
     @Option(name: .long, help: DataType.usage)
     var type: DataType

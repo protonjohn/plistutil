@@ -24,7 +24,7 @@ import XCTest
 @available(macOS 13, *)
 class CreateTests: PlistUtilTestCase {
     func testCreateEmptyList() throws {
-        Create.main(["--format", "binary", "--type", "list", "/list.plist"])
+        Create.main(["--output-format", "binary", "--type", "list", "/list.plist"])
         let contents = fs.contents(atPath: "/list.plist")
 
         guard let contents else {
@@ -40,7 +40,7 @@ class CreateTests: PlistUtilTestCase {
     }
 
     func testCreateEmptyDict() throws {
-        Create.main(["--format", "binary", "--type", "dict", "/dict.plist"])
+        Create.main(["--output-format", "binary", "--type", "dict", "/dict.plist"])
         let contents = fs.contents(atPath: "/dict.plist")
 
         guard let contents else {
@@ -56,7 +56,7 @@ class CreateTests: PlistUtilTestCase {
     }
 
     func testCreateEmptySwiftDict() throws {
-        Create.main(["--format", "swift", "--type", "dict", "/dict.swift"])
+        Create.main(["--output-format", "swift", "--type", "dict", "/dict.swift"])
         let contents = fs.contents(atPath: "/dict.swift")
 
         guard let contents else {

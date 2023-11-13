@@ -33,16 +33,18 @@ struct Print: PlistUtilSubcommandWithInputFile {
     @Argument(help: PlistUtil.filePathUsage)
     var file: String
 
+    @Option(name: .long, help: Format.usage)
+    var inputFormat: Format?
+
     var inputFile: String { file }
 
     func mutate(_ contents: Any) -> Any? {
         contents
     }
 
-    func write(_ plist: Any?, originalFormat: PropertyListSerialization.PropertyListFormat?) throws {
+    func write(_ plist: Any?, originalFormat: Format?) throws {
         if let originalFormat {
-            let format = Format(from: originalFormat)
-            Console.print("format: \(format.rawValue)")
+            Console.print("format: \(originalFormat.rawValue)")
         }
 
         Console.print(String(describing: plist as AnyObject))
