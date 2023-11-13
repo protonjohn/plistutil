@@ -276,14 +276,15 @@ extension PlistUtilSubcommandWithInputFile {
 
 extension PlistUtilSubcommandWithOutputFile {
     func write(_ plist: Any?, originalFormat: Format?) throws {
-        let outputFile = URL(string: outputFile)! // for certain commands, if outputFile unspecified, inputFile is done in-place
+        let outputFile = outputFile == "-" ? "/dev/stdout" : outputFile
+        let outputURL = URL(string: outputFile)! // for certain commands, if outputFile unspecified, inputFile is done in-place
 
         let outputFormat = outputFormat ?? originalFormat
 
         let data: Data
         switch outputFormat {
         case .swift:
-            let dictName = outputFile.deletingPathExtension().lastPathComponent.lowercasingFirstLetter
+            let dictName = outputURL.deletingPathExtension().lastPathComponent.lowercasingFirstLetter
             let typeName = PlistUtil.swiftCollectionTypeName(plist!)
             let literal = try "let \(dictName): \(typeName) = \(PlistUtil.itemAsSwiftLiteral(plist!))\n"
             guard let literalData = literal.data(using: .utf8) else {
@@ -304,7 +305,12 @@ extension PlistUtilSubcommandWithOutputFile {
             data = try encoder.encode(codingValue).data(using: .utf8) ?? Data()
         }
 
-        try? FileSystem.removeItem(outputFile)
-        _ = FileSystem.createFile(outputFile.absoluteString, data, nil)
+        if outputURL.path == "/dev/stdout" {
+            let handle = try FileHandle(forWritingTo: outputURL)
+            handle.write(data)
+        } else {
+            try? FileSystem.removeItem(outputURL)
+            _ = FileSystem.createFile(outputURL.absoluteString, data, nil)
+        }
     }
 }
