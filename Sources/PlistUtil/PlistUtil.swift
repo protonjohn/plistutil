@@ -107,6 +107,7 @@ public struct PlistUtil: ParsableCommand {
             Insert.self,
             Print.self,
             Remove.self,
+            Eval.self,
         ]
     )
 

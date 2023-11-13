@@ -22,7 +22,7 @@ import ArgumentParser
 struct Convert: PlistUtilSubcommandWithInputAndOutputFile {
     static let configuration = CommandConfiguration(
         abstract: "Convert a plist to a different format.",
-        usage: "convert --output-format xml --in-file bin.plist xml.plist",
+        usage: "convert --input-format xml --output-format binary --input-file bin.plist xml.plist",
         discussion: """
             Certain formats, like the swift format, can be converted from plists, but not the other \
             way around. If you should try to convert one of these files without specifying a separate \
