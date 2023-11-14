@@ -1,11 +1,17 @@
 //
-//  File.swift
+//  CodingCollection+Repr.swift
 //  
 //
 //  Created by John Biggs on 13.11.23.
 //
 
 import Foundation
+
+extension CodingCollection: CustomStringConvertible {
+    public var description: String {
+        String(describing: value as AnyObject)
+    }
+}
 
 extension CodingCollection: ExpressibleByNilLiteral {
     public init(nilLiteral: ()) {
