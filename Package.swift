@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "PlistUtil",
+    platforms: [.macOS(.v11), .iOS(.v15)],
     products: [
         .executable(name: "plistutil", targets: ["PlistUtil"]),
         .library(name: "CodingCollection", targets: ["CodingCollection"])

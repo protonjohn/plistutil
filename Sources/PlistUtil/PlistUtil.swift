@@ -256,8 +256,18 @@ extension PlistUtilSubcommand {
 extension PlistUtilSubcommandWithInputFile {
     func contents() throws -> (Any, Format?) {
         guard let plistPath = URL(string: inputFile) else { throw FatalError.invalidPath(inputFile) }
-        guard FileSystem.fileExists(inputFile) else { throw FatalError.noFileExists(at: plistPath) }
-        guard let contents = FileSystem.contents(inputFile) else { throw FatalError.couldNotGetContents(of: plistPath) }
+
+        let contents: Data
+        if inputFile == "/dev/stdin" {
+            guard let input = try FileHandle.standardInput.readToEnd() else {
+                throw FatalError.couldNotGetContents(of: plistPath)
+            }
+            contents = input
+        } else {
+            guard FileSystem.fileExists(inputFile) else { throw FatalError.noFileExists(at: plistPath) }
+            guard let input = FileSystem.contents(inputFile) else { throw FatalError.couldNotGetContents(of: plistPath) }
+            contents = input
+        }
 
         switch inputFormat {
         case .binary, .openStep, .xml, nil:
