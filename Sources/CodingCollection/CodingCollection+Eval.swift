@@ -56,7 +56,7 @@ public extension CodingCollection {
                 try eval(arguments: arguments, dictionary: caseValue)
             } else if let caseName = caseDict[Symbol.ifSetCase.keyValue] {
                 guard (try? self[caseName]) != nil else {
-                    return
+                    continue
                 }
                 debugPrint("Setting overrides for argument \(caseName)...")
                 try eval(arguments: arguments, dictionary: caseStep)
